@@ -31,25 +31,3 @@ msbuild.wrn
 # Visual Studio
 .vs/
 node_modules/
-
-Intranet/obj/
-Intranet/obj/
-Intranet/bin/Debug/*
-Intranet/bin/Debug/netcoreapp2.0/*
-Intranet/wwwroot/css/*.min.css
-Intranet/wwwroot/js/*.min.js
-
-Intranet/bower_components/*
-
-# Client folders
-node_modules
-
-public/*
-
-ClientSrc/wwwroot-src/models/courses/*.json
-ClientSrc/wwwroot-src/models/departments/*.json
-ClientSrc/wwwroot-src/models/subjects/*.json
-
-product/BackboneUI/wwwroot/*
-.sonarqube/
-**/*/coverage.opencover.xml
