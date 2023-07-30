@@ -12,19 +12,7 @@ namespace Nodes
 {
     public partial class Form1 : Form
     {
-
-        public Form1()
-        {
-            InitializeComponent();
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-        }
-
-        private void Form1_Paint(object sender, PaintEventArgs e)
-        {
-            List<Node> nodesArr = new List<Node>
+        public List<Node> nodesArr = new List<Node>
             {
                 new Node(1, 10,50),
                 new Node(2, 110,50),
@@ -43,31 +31,67 @@ namespace Nodes
                 new Node(15, 160,300)
             };
 
+        private Node startNode = new Node();
+        private Node desiredNode = new Node();
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            startNode = nodesArr.FirstOrDefault();
+            desiredNode = nodesArr.LastOrDefault();
+
+        }
+
+        public void ButtonClick(object sender, EventArgs e)
+        {
+            Control btn = (Control)sender;
+
+            if (btn.BackColor == Color.Red)
+            {
+                btn.BackColor = Color.Green;
+                nodesArr.FirstOrDefault(x => x.Id.ToString() == btn.Text).Enabled = true;
+            }
+            else
+            {
+                btn.BackColor = Color.Red;
+                nodesArr.FirstOrDefault(x => x.Id.ToString() == btn.Text).Enabled = false;
+            }
+
+            Invalidate();
+            Update();
+        }
+
+        private void Form1_Paint(object sender, PaintEventArgs e)
+        {
             foreach (Node n in nodesArr)
             {
                 Button btn = new Button()
                 {
                     Location = new Point(n.X, n.Y),
                     Text = n.Id.ToString(),
-                    Size = new Size(30, 30)
+                    Size = new Size(30, 30),
+                    BackColor = Color.Green
                 };
 
-                btn.BackColor = Color.Green;
-
+                btn.Click += new EventHandler(ButtonClick);
                 Controls.Add(btn);
+
+                listBox1.Items.Add(n.Id);
+                listBox2.Items.Add(n.Id);
             }
 
-            Node startNode = nodesArr[3];
-            Node desiredNode = nodesArr[14];
+            listBox1.SelectedItem = startNode.Id;
+            listBox2.SelectedItem = desiredNode.Id;
 
-            List<Node> shortestPath = FindShortestPath(startNode, desiredNode, nodesArr);
-            string path = "";
+            List<Node> shortestPath = FindShortestPath(startNode, desiredNode, nodesArr.Where(x => x.Enabled).ToList());
 
             Node lastNode = null;
             foreach (Node node in shortestPath)
             {
-                path = path + node.Id + ",";
-
                 if (lastNode != null)
                 {
                     Pen pen = new Pen(Color.FromArgb(255, 0, 0, 0));
@@ -76,13 +100,6 @@ namespace Nodes
 
                 lastNode = node;
             }
-
-            Controls.Add(new Label()
-            {
-                Location = new Point(10, 10),
-                Text = path,
-                Size = new Size(200, 30)
-            });
         }
 
         public static double Distance(Node node1, Node node2)
@@ -122,15 +139,35 @@ namespace Nodes
             while (node != null)
             {
                 shortestPath.Insert(0, node);
-                node = parentMap[node];
+                if (parentMap.ContainsKey(node))
+                {
+                    node = parentMap[node];
+                }
+                else
+                {
+                    break;
+                }
             }
 
             return shortestPath;
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            ListBox listBox = (ListBox)sender;
+            startNode = nodesArr.FirstOrDefault(x => x.Id.ToString() == listBox.SelectedItem.ToString());
 
+            Invalidate();
+            Update();
+        }
+
+        private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ListBox listBox = (ListBox)sender;
+            desiredNode = nodesArr.FirstOrDefault(x => x.Id.ToString() == listBox.SelectedItem.ToString());
+
+            Invalidate();
+            Update();
         }
     }
     public class Node
@@ -138,12 +175,18 @@ namespace Nodes
         public int X { get; set; }
         public int Y { get; set; }
         public int Id { get; set; }
+        public bool Enabled { get; set; }
+
+        public Node()
+        {
+        }
 
         public Node(int id, int x, int y)
         {
             X = x;
             Y = y;
             Id = id;
+            Enabled = true;
         }
     }
 }
